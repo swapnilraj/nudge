@@ -1,5 +1,5 @@
 import * as IntentLauncher from 'expo-intent-launcher';
-import { Platform } from 'react-native';
+import { Platform, Linking } from 'react-native';
 
 export class AppLauncher {
   async launchApp(packageName: string): Promise<boolean> {
@@ -9,13 +9,11 @@ export class AppLauncher {
         return false;
       }
 
-      // Launch app using Android intent
-      await IntentLauncher.startActivityAsync(
-        IntentLauncher.ActivityAction.MAIN,
-        {
-          package: packageName,
-        }
-      );
+      // Launch app using Android intent with MAIN action
+      // The package parameter tells Android which app to launch
+      await IntentLauncher.startActivityAsync('android.intent.action.MAIN', {
+        package: packageName,
+      });
       return true;
     } catch (error) {
       console.error(`Error launching app ${packageName}:`, error);

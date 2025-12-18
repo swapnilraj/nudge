@@ -14,6 +14,14 @@ Nudge helps you break out of mindless app scrolling by randomly launching apps f
 - Automatic app launching when you open Nudge
 - Fully offline and privacy-first (all data stored locally)
 
+## ⚠️ Important: Development Build Required
+
+**This app CANNOT run in Expo Go** because it uses:
+- `expo-dev-client` (requires custom development build)
+- `react-native-installed-apps` (custom native module)
+
+You **must** use a development build. See instructions below.
+
 ## Setup
 
 ### Prerequisites
@@ -21,8 +29,8 @@ Nudge helps you break out of mindless app scrolling by randomly launching apps f
 - Node.js (v18 or later)
 - npm or yarn
 - Android Studio (for Android development)
-- Android device or emulator (API 29+, Android 10+)
-- Expo CLI
+- Android device connected via USB (with USB debugging enabled) OR Android emulator running
+- Android device/emulator (API 29+, Android 10+)
 
 ### Installation
 
@@ -41,16 +49,30 @@ npm install
 npm run prebuild
 ```
 
-4. Run on Android device/emulator:
+4. **Run on Android device/emulator (Development Build):**
 ```bash
-npm run run:android
+npm run android
 ```
 
-Or use Expo Go for development:
+This will:
+- Build the development client
+- Install it on your device/emulator
+- Start Metro bundler
+- Launch the app
+
+**Note**: This is NOT Expo Go. It's a custom development build that includes native modules.
+
+### Verify Device Connection
+
+Before running, make sure your device is connected:
 ```bash
-npm start
-# Then press 'a' for Android
+adb devices
 ```
+
+You should see your device listed. If not:
+- Enable USB debugging on your device
+- Accept the USB debugging authorization prompt
+- For emulator: Make sure it's running
 
 ## Project Structure
 
