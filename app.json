@@ -1,0 +1,58 @@
+{
+  "expo": {
+    "name": "Nudge",
+    "slug": "nudge",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.nudge.app"
+    },
+    "android": {
+      "package": "com.nudge.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "android.permission.QUERY_ALL_PACKAGES",
+        "android.permission.POST_NOTIFICATIONS"
+      ],
+      "queries": [
+        {
+          "intent": {
+            "action": "android.intent.action.MAIN"
+          }
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-dev-client",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#ffffff"
+        }
+      ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "nudge-app"
+      }
+    }
+  }
+}
