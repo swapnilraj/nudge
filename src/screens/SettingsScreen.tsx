@@ -5,6 +5,7 @@ import {
   Modal,
   NativeModules,
   Platform,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -134,8 +135,10 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentApps, onS
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Settings</Text>
-      <Text style={styles.subtitle}>Select apps and configure weights</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Settings</Text>
+        <Text style={styles.subtitle}>Select apps and configure weights</Text>
+      </View>
 
       <TextInput
         value={query}
@@ -190,7 +193,11 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentApps, onS
                 onPress={() => toggleApp(item)}
               >
                 <Text style={styles.appName}>{item.label}</Text>
-                <Text style={styles.checkbox}>{isSelected ? '✓' : ''}</Text>
+                <View style={[styles.check, isSelected && styles.checkSelected]}>
+                  <Text style={[styles.checkText, isSelected && styles.checkTextSelected]}>
+                    {isSelected ? '✓' : ''}
+                  </Text>
+                </View>
               </TouchableOpacity>
               {isSelected && weightedApp && (
                 <View style={styles.sliderContainer}>
@@ -202,8 +209,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentApps, onS
                     step={1}
                     value={weightedApp.weight}
                     onValueChange={(value) => updateWeight(item.packageName, value)}
-                    minimumTrackTintColor="#2196F3"
-                    maximumTrackTintColor="#ddd"
+                    minimumTrackTintColor={COLORS.primary}
+                    maximumTrackTintColor={COLORS.border}
                   />
                 </View>
               )}
@@ -263,6 +270,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: COLORS.bg,
+  },
+  header: {
+    paddingTop: (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0) + 6,
   },
   title: {
     fontSize: 24,
@@ -398,9 +408,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text,
   },
-  checkbox: {
-    fontSize: 20,
-    color: COLORS.primary,
+  check: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.card,
+  },
+  checkSelected: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  checkText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: 'transparent',
+    marginTop: -1,
+  },
+  checkTextSelected: {
+    color: 'white',
   },
   sliderContainer: {
     paddingLeft: 10,

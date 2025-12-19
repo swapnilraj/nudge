@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Platform,
+  StatusBar,
   StyleSheet,
   Text,
   TextInput,
@@ -96,10 +98,12 @@ export const AppSelectionScreen: React.FC<AppSelectionScreenProps> = ({
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Select Apps</Text>
-      <Text style={styles.subtitle}>
-        Choose apps you want to be nudged towards ({selected.size} selected)
-      </Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>Select Apps</Text>
+        <Text style={styles.subtitle}>
+          Choose apps you want to be nudged towards ({selected.size} selected)
+        </Text>
+      </View>
       <TextInput
         value={query}
         onChangeText={setQuery}
@@ -121,9 +125,11 @@ export const AppSelectionScreen: React.FC<AppSelectionScreenProps> = ({
             onPress={() => toggleApp(item)}
           >
             <Text style={styles.appName}>{item.label}</Text>
-            <Text style={styles.checkbox}>
-              {selected.has(item.packageName) ? '✓' : ''}
-            </Text>
+            <View style={[styles.check, selected.has(item.packageName) && styles.checkSelected]}>
+              <Text style={[styles.checkText, selected.has(item.packageName) && styles.checkTextSelected]}>
+                {selected.has(item.packageName) ? '✓' : ''}
+              </Text>
+            </View>
           </TouchableOpacity>
         )}
       />
@@ -143,6 +149,9 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: COLORS.bg,
+  },
+  header: {
+    paddingTop: (Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0) + 6,
   },
   title: {
     fontSize: 24,
@@ -180,9 +189,28 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.text,
   },
-  checkbox: {
-    fontSize: 20,
-    color: COLORS.primary,
+  check: {
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    borderWidth: 2,
+    borderColor: COLORS.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: COLORS.card,
+  },
+  checkSelected: {
+    backgroundColor: COLORS.primary,
+    borderColor: COLORS.primary,
+  },
+  checkText: {
+    fontSize: 14,
+    fontWeight: '800',
+    color: 'transparent',
+    marginTop: -1,
+  },
+  checkTextSelected: {
+    color: 'white',
   },
   button: {
     backgroundColor: COLORS.primary,
