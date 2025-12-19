@@ -3,6 +3,15 @@ import { View, Text, StyleSheet, FlatList, TouchableOpacity } from 'react-native
 import Slider from '@react-native-community/slider';
 import { WeightedApp } from '../types';
 
+const COLORS = {
+  bg: '#F8FAFC',
+  card: '#FFFFFF',
+  text: '#0F172A',
+  muted: '#64748B',
+  border: '#E2E8F0',
+  primary: '#2563EB',
+};
+
 interface WeightConfigScreenProps {
   apps: WeightedApp[];
   onWeightsChanged: (apps: WeightedApp[]) => void;
@@ -49,8 +58,8 @@ export const WeightConfigScreen: React.FC<WeightConfigScreenProps> = ({
                 step={1}
                 value={item.weight}
                 onValueChange={(value) => updateWeight(item.packageName, value)}
-                minimumTrackTintColor="#2196F3"
-                maximumTrackTintColor="#ddd"
+                minimumTrackTintColor={COLORS.primary}
+                maximumTrackTintColor={COLORS.border}
               />
             </View>
           </View>
@@ -70,26 +79,32 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.bg,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: COLORS.text,
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 20,
-    color: '#666',
+    color: COLORS.muted,
   },
   weightItem: {
     padding: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: COLORS.border,
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
+    marginBottom: 10,
   },
   appName: {
     fontSize: 16,
     fontWeight: '500',
     marginBottom: 10,
+    color: COLORS.text,
   },
   sliderContainer: {
     flexDirection: 'row',
@@ -100,6 +115,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 16,
     fontWeight: 'bold',
+    color: COLORS.text,
   },
   slider: {
     flex: 1,
@@ -107,19 +123,22 @@ const styles = StyleSheet.create({
   },
   summary: {
     padding: 15,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 5,
+    backgroundColor: COLORS.card,
+    borderRadius: 12,
     marginTop: 10,
+    borderWidth: 1,
+    borderColor: COLORS.border,
   },
   summaryText: {
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
+    color: COLORS.text,
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: COLORS.primary,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 12,
     alignItems: 'center',
     marginTop: 20,
   },

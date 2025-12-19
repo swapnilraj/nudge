@@ -14,6 +14,14 @@ import { UserPreferences, WeightedApp, AppInfo } from './src/types';
 
 type Screen = 'welcome' | 'appSelection' | 'weightConfig' | 'settings' | 'launching';
 
+const COLORS = {
+  bg: '#F8FAFC',
+  card: '#FFFFFF',
+  text: '#0F172A',
+  muted: '#64748B',
+  primary: '#2563EB',
+};
+
 export default function App() {
   // Start in a neutral state to avoid briefly rendering the wrong UI before we know
   // whether we should show onboarding/settings or immediately launch an app.
@@ -237,7 +245,7 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <StatusBar style="auto" />
+      <StatusBar style="dark" backgroundColor={COLORS.bg} />
       {renderScreen()}
     </View>
   );
@@ -246,7 +254,7 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.bg,
   },
   launchingContainer: {
     flex: 1,

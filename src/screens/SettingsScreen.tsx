@@ -15,6 +15,17 @@ import Slider from '@react-native-community/slider';
 import { WeightedApp, AppInfo } from '../types';
 import { AppDiscoveryService } from '../services/AppDiscoveryService';
 
+const COLORS = {
+  bg: '#F8FAFC',
+  card: '#FFFFFF',
+  text: '#0F172A',
+  muted: '#64748B',
+  border: '#E2E8F0',
+  primary: '#2563EB',
+  primaryMuted: '#93C5FD',
+  placeholder: '#94A3B8',
+};
+
 interface SettingsScreenProps {
   currentApps: WeightedApp[];
   onSave: (apps: WeightedApp[]) => void;
@@ -115,8 +126,8 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentApps, onS
   if (loading) {
     return (
       <View style={styles.container}>
-        <ActivityIndicator size="large" />
-        <Text>Loading...</Text>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={styles.loadingText}>Loading…</Text>
       </View>
     );
   }
@@ -130,6 +141,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentApps, onS
         value={query}
         onChangeText={setQuery}
         placeholder="Search apps…"
+        placeholderTextColor={COLORS.placeholder}
         autoCorrect={false}
         autoCapitalize="none"
         style={styles.searchInput}
@@ -144,6 +156,7 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = ({ currentApps, onS
           value={shortcutLabel}
           onChangeText={setShortcutLabel}
           placeholder="Shortcut name"
+          placeholderTextColor={COLORS.placeholder}
           autoCorrect={false}
           style={styles.shortcutInput}
         />
@@ -249,50 +262,58 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.bg,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: COLORS.text,
   },
   subtitle: {
     fontSize: 16,
     marginBottom: 20,
-    color: '#666',
+    color: COLORS.muted,
   },
   searchInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: COLORS.border,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 12,
+    backgroundColor: COLORS.card,
+    color: COLORS.text,
   },
   shortcutCard: {
     borderWidth: 1,
-    borderColor: '#e6e6e6',
+    borderColor: COLORS.border,
     borderRadius: 12,
     padding: 12,
     marginBottom: 12,
+    backgroundColor: COLORS.card,
   },
   shortcutTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 6,
+    color: COLORS.text,
   },
   shortcutHelp: {
     fontSize: 12,
-    color: '#666',
+    color: COLORS.muted,
     marginBottom: 10,
     lineHeight: 16,
   },
   shortcutInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
+    borderColor: COLORS.border,
+    borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 10,
     marginBottom: 10,
+    backgroundColor: COLORS.card,
+    color: COLORS.text,
   },
   shortcutRow: {
     flexDirection: 'row',
@@ -302,11 +323,11 @@ const styles = StyleSheet.create({
   },
   shortcutRowLabel: {
     fontSize: 14,
-    color: '#333',
+    color: COLORS.text,
   },
   shortcutRowValue: {
     fontSize: 14,
-    color: '#666',
+    color: COLORS.muted,
   },
   shortcutButtons: {
     flexDirection: 'row',
@@ -315,9 +336,9 @@ const styles = StyleSheet.create({
   },
   shortcutButton: {
     flex: 1,
-    backgroundColor: '#2196F3',
+    backgroundColor: COLORS.primary,
     paddingVertical: 12,
-    borderRadius: 8,
+    borderRadius: 12,
     alignItems: 'center',
   },
   shortcutButtonText: {
@@ -329,26 +350,29 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     padding: 20,
+    backgroundColor: COLORS.bg,
   },
   modalTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: COLORS.text,
   },
   modalItem: {
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: COLORS.border,
   },
   modalItemText: {
     fontSize: 16,
+    color: COLORS.text,
   },
   modalReset: {
     paddingVertical: 10,
     marginBottom: 10,
   },
   modalResetText: {
-    color: '#2196F3',
+    color: COLORS.primary,
     fontWeight: 'bold',
   },
   modalClose: {
@@ -356,12 +380,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalCloseText: {
-    color: '#2196F3',
+    color: COLORS.primary,
     fontWeight: 'bold',
   },
   appItem: {
     borderBottomWidth: 1,
-    borderBottomColor: '#eee',
+    borderBottomColor: COLORS.border,
     paddingVertical: 10,
   },
   appHeader: {
@@ -372,10 +396,11 @@ const styles = StyleSheet.create({
   },
   appName: {
     fontSize: 16,
+    color: COLORS.text,
   },
   checkbox: {
     fontSize: 20,
-    color: '#2196F3',
+    color: COLORS.primary,
   },
   sliderContainer: {
     paddingLeft: 10,
@@ -384,24 +409,28 @@ const styles = StyleSheet.create({
   weightLabel: {
     fontSize: 14,
     marginBottom: 5,
-    color: '#666',
+    color: COLORS.muted,
   },
   slider: {
     height: 40,
   },
   button: {
-    backgroundColor: '#2196F3',
+    backgroundColor: COLORS.primary,
     padding: 15,
-    borderRadius: 5,
+    borderRadius: 12,
     alignItems: 'center',
     marginTop: 20,
   },
   buttonDisabled: {
-    backgroundColor: '#ccc',
+    backgroundColor: COLORS.primaryMuted,
   },
   buttonText: {
     color: 'white',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  loadingText: {
+    marginTop: 12,
+    color: COLORS.muted,
   },
 });
