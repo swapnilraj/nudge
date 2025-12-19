@@ -1,4 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { NativeModules, Platform } from 'react-native';
 import { UserPreferences } from '../types';
 
 const STORAGE_KEY = '@nudge:preferences';
@@ -18,6 +19,12 @@ export class StorageService {
     try {
       prefs.lastModified = new Date().toISOString();
       await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(prefs));
+
+      // Also persist the selected/weighted apps into native storage so the Android
+      // launcher trampoline can read it without starting React Native.
+      if (Platform.OS === 'android' && NativeModules.NudgePrefs?.setWeightedAppsJson) {
+        await NativeModules.NudgePrefs.setWeightedAppsJson(JSON.stringify(prefs.selectedApps));
+      }
     } catch (error) {
       console.error('Error saving preferences:', error);
       throw error;

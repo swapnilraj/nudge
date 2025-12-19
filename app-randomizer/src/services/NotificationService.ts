@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { Platform } from 'react-native';
+import { NativeModules, Platform } from 'react-native';
 
 // Configure notification handler
 Notifications.setNotificationHandler({
@@ -15,6 +15,19 @@ const PERSISTENT_NOTIFICATION_TAG = 'nudge-persistent-notification';
 
 export class NotificationService {
   private async clearPersistentNotifications(): Promise<void> {
+    // On Android we show a native ongoing notification instead of scheduling via Expo.
+    if (Platform.OS === 'android' && NativeModules.NudgeNotification?.hidePersistentNotification) {
+      await NativeModules.NudgeNotification.hidePersistentNotification();
+      // Also clear any previously created Expo notifications from older builds
+      // so we don't end up with duplicate ongoing notifications.
+      try {
+        await Notifications.dismissAllNotificationsAsync();
+        await Notifications.cancelAllScheduledNotificationsAsync();
+      } catch {
+        // ignore
+      }
+    }
+
     // Cancel scheduled notifications that we previously scheduled as "persistent"
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
     const scheduledPersistent = scheduled.filter(
@@ -58,6 +71,11 @@ export class NotificationService {
 
     // Clear any existing persistent notification (scheduled or currently shown)
     await this.clearPersistentNotifications();
+
+    if (Platform.OS === 'android' && NativeModules.NudgeNotification?.showPersistentNotification) {
+      await NativeModules.NudgeNotification.showPersistentNotification();
+      return;
+    }
 
     // Create persistent notification with action buttons
     await Notifications.scheduleNotificationAsync({

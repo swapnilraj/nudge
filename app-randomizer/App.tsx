@@ -1,6 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, AppState, AppStateStatus, StyleSheet, View } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import { ActivityIndicator, AppState, AppStateStatus, NativeModules, Platform, StyleSheet, View } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { WelcomeScreen } from './src/screens/WelcomeScreen';
 import { AppSelectionScreen } from './src/screens/AppSelectionScreen';
@@ -48,11 +47,12 @@ export default function App() {
 
   const initializeApp = async () => {
     try {
-      // Detect if the app was opened by tapping the persistent notification.
-      // If so, prioritize opening Settings and do NOT auto-launch another app.
-      const lastResponse = await Notifications.getLastNotificationResponseAsync();
-      const lastData: any = lastResponse?.notification?.request?.content?.data;
-      const openedFromPersistentNotification = lastData?.type === 'persistent';
+      // If Android started MainActivity with openSettings=true (via persistent notification
+      // or via launcher trampoline fallback), go straight to Settings and never auto-launch.
+      let shouldOpenSettings = false;
+      if (Platform.OS === 'android' && NativeModules.NudgePrefs?.consumeOpenSettingsFlag) {
+        shouldOpenSettings = await NativeModules.NudgePrefs.consumeOpenSettingsFlag();
+      }
 
       const prefs = await storageService.getPreferences();
       const firstLaunch = await storageService.isFirstLaunch();
@@ -60,7 +60,7 @@ export default function App() {
       setIsFirstLaunch(firstLaunch);
       setPreferences(prefs);
 
-      if (openedFromPersistentNotification) {
+      if (shouldOpenSettings) {
         setScreen('settings');
       } else if (prefs && !firstLaunch) {
         setWeightedApps(prefs.selectedApps);
@@ -84,14 +84,8 @@ export default function App() {
   };
 
   const setupNotificationListener = () => {
-    // Handle notification taps
-    Notifications.addNotificationResponseReceivedListener(response => {
-      const data = response.notification.request.content.data;
-      if (data?.type === 'persistent') {
-        // Open settings
-        setScreen('settings');
-      }
-    });
+    // No-op: on Android we use a native notification PendingIntent to open Settings.
+    // (iOS/web behavior can be implemented here if needed later.)
   };
 
   const handleAppStateChange = (nextAppState: AppStateStatus) => {
