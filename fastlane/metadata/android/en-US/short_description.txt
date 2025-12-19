@@ -1,0 +1,3 @@
+Launch a weighted-random app instead of your usual scroll.
+
+

@@ -92,8 +92,10 @@ android {
         applicationId 'com.nudge.app'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0.0"
+        def vc = (System.getenv("NUDGE_VERSION_CODE") ?: findProperty("NUDGE_VERSION_CODE"))?.toString()
+        def vn = (System.getenv("NUDGE_VERSION_NAME") ?: findProperty("NUDGE_VERSION_NAME"))?.toString()
+        versionCode vc ? vc.toInteger() : 1
+        versionName vn ?: "1.0.0"
 
         buildConfigField "String", "REACT_NATIVE_RELEASE_LEVEL", "\"${findProperty('reactNativeReleaseLevel') ?: 'stable'}\""
     }
@@ -104,6 +106,16 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
+        release {
+            // Configure via env vars or gradle properties. Do not commit keystores or passwords.
+            def storePath = (System.getenv("NUDGE_RELEASE_STORE_FILE") ?: findProperty("NUDGE_RELEASE_STORE_FILE"))?.toString()
+            if (storePath) {
+                storeFile file(storePath)
+                storePassword (System.getenv("NUDGE_RELEASE_STORE_PASSWORD") ?: findProperty("NUDGE_RELEASE_STORE_PASSWORD"))?.toString()
+                keyAlias (System.getenv("NUDGE_RELEASE_KEY_ALIAS") ?: findProperty("NUDGE_RELEASE_KEY_ALIAS"))?.toString()
+                keyPassword (System.getenv("NUDGE_RELEASE_KEY_PASSWORD") ?: findProperty("NUDGE_RELEASE_KEY_PASSWORD"))?.toString()
+            }
+        }
     }
     buildTypes {
         debug {
@@ -112,7 +124,7 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release.storeFile != null ? signingConfigs.release : signingConfigs.debug
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds

@@ -1,0 +1,11 @@
+Nudge helps you break habitual app usage patterns by introducing weighted randomness into what you open next.
+
+Pick the apps you want to be nudged towards, assign each a weight, then open Nudge to launch a randomly selected app based on those weights.
+
+Key features:
+- Select from your installed apps
+- Assign weights to control probabilities
+- Persistent notification to open Settings quickly
+- Fully offline (preferences stored locally)
+
+

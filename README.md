@@ -1,4 +1,4 @@
-# Nudge
+    # Nudge
 
 Nudge is an Android app that helps you break habitual app usage patterns by **launching a weighted-random app** from your curated list.
 
@@ -57,6 +57,8 @@ adb install -r android/app/build/outputs/apk/release/app-release.apk
 cd android
 ./gradlew :app:bundleRelease
 ```
+
+Signing/versioning details: see `android/RELEASE_SIGNING.md`.
 
 ## Repo layout
 

@@ -19,7 +19,6 @@
     "android": {
       "package": "com.nudge.app",
       "permissions": [
-        "android.permission.QUERY_ALL_PACKAGES",
         "android.permission.POST_NOTIFICATIONS"
       ],
       "adaptiveIcon": {
