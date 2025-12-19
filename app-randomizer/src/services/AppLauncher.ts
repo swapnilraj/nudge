@@ -9,11 +9,8 @@ export class AppLauncher {
         return false;
       }
 
-      // Launch app using Android intent with MAIN action
-      // The package parameter tells Android which app to launch
-      await IntentLauncher.startActivityAsync('android.intent.action.MAIN', {
-        package: packageName,
-      });
+      // Launch app by package name (Android only)
+      IntentLauncher.openApplication(packageName);
       return true;
     } catch (error) {
       console.error(`Error launching app ${packageName}:`, error);

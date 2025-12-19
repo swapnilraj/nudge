@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, AppState, AppStateStatus } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, AppState, AppStateStatus, StyleSheet, View } from 'react-native';
 import * as Notifications from 'expo-notifications';
 import { StatusBar } from 'expo-status-bar';
 import { WelcomeScreen } from './src/screens/WelcomeScreen';
@@ -16,7 +16,9 @@ import { UserPreferences, WeightedApp, AppInfo } from './src/types';
 type Screen = 'welcome' | 'appSelection' | 'weightConfig' | 'settings' | 'launching';
 
 export default function App() {
-  const [screen, setScreen] = useState<Screen>('welcome');
+  // Start in a neutral state to avoid briefly rendering the wrong UI before we know
+  // whether we should show onboarding/settings or immediately launch an app.
+  const [screen, setScreen] = useState<Screen>('launching');
   const [isFirstLaunch, setIsFirstLaunch] = useState(true);
   const [selectedApps, setSelectedApps] = useState<AppInfo[]>([]);
   const [weightedApps, setWeightedApps] = useState<WeightedApp[]>([]);
@@ -26,6 +28,12 @@ export default function App() {
   const notificationService = new NotificationService();
   const randomizer = new WeightedRandomizer();
   const appLauncher = new AppLauncher();
+  const isLaunchingRef = useRef(false);
+  const screenRef = useRef<Screen>(screen);
+
+  useEffect(() => {
+    screenRef.current = screen;
+  }, [screen]);
 
   useEffect(() => {
     initializeApp();
@@ -40,18 +48,27 @@ export default function App() {
 
   const initializeApp = async () => {
     try {
+      // Detect if the app was opened by tapping the persistent notification.
+      // If so, prioritize opening Settings and do NOT auto-launch another app.
+      const lastResponse = await Notifications.getLastNotificationResponseAsync();
+      const lastData: any = lastResponse?.notification?.request?.content?.data;
+      const openedFromPersistentNotification = lastData?.type === 'persistent';
+
       const prefs = await storageService.getPreferences();
       const firstLaunch = await storageService.isFirstLaunch();
       
       setIsFirstLaunch(firstLaunch);
       setPreferences(prefs);
 
-      if (prefs && !firstLaunch) {
+      if (openedFromPersistentNotification) {
+        setScreen('settings');
+      } else if (prefs && !firstLaunch) {
         setWeightedApps(prefs.selectedApps);
         
-        // If app was opened normally (not from notification), launch random app
+        // Normal launcher open: launch a random app without flashing Settings.
         if (prefs.selectedApps.length > 0) {
-          launchRandomApp(prefs.selectedApps);
+          setScreen('launching');
+          await launchRandomApp(prefs.selectedApps);
         } else {
           setScreen('settings');
         }
@@ -79,14 +96,24 @@ export default function App() {
 
   const handleAppStateChange = (nextAppState: AppStateStatus) => {
     if (nextAppState === 'active' && preferences && !isFirstLaunch) {
-      // App came to foreground - if not in settings, launch random app
-      if (screen !== 'settings' && preferences.selectedApps.length > 0) {
+      // App came to foreground - if not actively configuring settings/onboarding, launch.
+      const currentScreen = screenRef.current;
+      const isConfiguring =
+        currentScreen === 'settings' ||
+        currentScreen === 'welcome' ||
+        currentScreen === 'appSelection' ||
+        currentScreen === 'weightConfig';
+
+      if (!isConfiguring && preferences.selectedApps.length > 0) {
+        setScreen('launching');
         launchRandomApp(preferences.selectedApps);
       }
     }
   };
 
   const launchRandomApp = async (apps: WeightedApp[]) => {
+    if (isLaunchingRef.current) return;
+    isLaunchingRef.current = true;
     try {
       const selectedApp = randomizer.selectApp(apps);
       const success = await appLauncher.launchApp(selectedApp.packageName);
@@ -97,9 +124,13 @@ export default function App() {
       } else {
         console.error('Failed to launch app:', selectedApp.packageName);
         // Could show error message or try another app
+        setScreen('settings');
       }
     } catch (error) {
       console.error('Error launching random app:', error);
+      setScreen('settings');
+    } finally {
+      isLaunchingRef.current = false;
     }
   };
 
@@ -169,6 +200,13 @@ export default function App() {
 
   const renderScreen = () => {
     switch (screen) {
+      case 'launching':
+        return (
+          <View style={styles.launchingContainer}>
+            <ActivityIndicator size="large" />
+          </View>
+        );
+
       case 'welcome':
         return <WelcomeScreen onContinue={handleWelcomeContinue} />;
       
@@ -215,5 +253,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
+  },
+  launchingContainer: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

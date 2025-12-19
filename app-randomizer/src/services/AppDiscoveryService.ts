@@ -20,7 +20,7 @@ export class AppDiscoveryService {
         ];
       }
       
-      const apps = await InstalledApps.getApps();
+      const apps = await InstalledApps.getAll();
       return apps.map((app: any) => ({
         packageName: app.packageName,
         label: app.label || app.packageName,

@@ -4,15 +4,36 @@ import { Platform } from 'react-native';
 // Configure notification handler
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),
 });
 
-const NOTIFICATION_ID = 'nudge-persistent-notification';
+const PERSISTENT_NOTIFICATION_TAG = 'nudge-persistent-notification';
 
 export class NotificationService {
+  private async clearPersistentNotifications(): Promise<void> {
+    // Cancel scheduled notifications that we previously scheduled as "persistent"
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    const scheduledPersistent = scheduled.filter(
+      req => (req.content.data as any)?.notificationTag === PERSISTENT_NOTIFICATION_TAG
+    );
+    await Promise.all(
+      scheduledPersistent.map(req => Notifications.cancelScheduledNotificationAsync(req.identifier))
+    );
+
+    // Dismiss currently presented notifications matching our tag
+    const presented = await Notifications.getPresentedNotificationsAsync();
+    const presentedPersistent = presented.filter(
+      n => (n.request.content.data as any)?.notificationTag === PERSISTENT_NOTIFICATION_TAG
+    );
+    await Promise.all(
+      presentedPersistent.map(n => Notifications.dismissNotificationAsync(n.request.identifier))
+    );
+  }
+
   async requestPermissions(): Promise<boolean> {
     if (Platform.OS === 'android') {
       const { status: existingStatus } = await Notifications.getPermissionsAsync();
@@ -35,16 +56,15 @@ export class NotificationService {
       return;
     }
 
-    // Cancel existing notification if any
-    await Notifications.cancelNotificationAsync(NOTIFICATION_ID);
+    // Clear any existing persistent notification (scheduled or currently shown)
+    await this.clearPersistentNotifications();
 
     // Create persistent notification with action buttons
     await Notifications.scheduleNotificationAsync({
-      identifier: NOTIFICATION_ID,
       content: {
         title: 'Nudge',
         body: 'Tap to launch a random app or open settings',
-        data: { type: 'persistent' },
+        data: { type: 'persistent', notificationTag: PERSISTENT_NOTIFICATION_TAG },
         sticky: true, // Makes it persistent
       },
       trigger: null, // null means show immediately and persist
@@ -52,7 +72,7 @@ export class NotificationService {
   }
 
   async removePersistentNotification(): Promise<void> {
-    await Notifications.cancelNotificationAsync(NOTIFICATION_ID);
+    await this.clearPersistentNotifications();
   }
 
   handleNotificationAction(action: 'settings' | 'launch'): void {

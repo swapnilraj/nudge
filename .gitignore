@@ -1,0 +1,7 @@
+# Repo-root ignores (generated artifacts that shouldn't be committed)
+.expo/
+
+# Expo/EAS build output
+app-randomizer/dist-android/
+
+
