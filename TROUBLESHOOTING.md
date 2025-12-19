@@ -15,7 +15,6 @@ You're trying to use Expo Go (scanning QR code), but getting an error.
 You must use a **development build** instead:
 
 ```bash
-cd app-randomizer
 npm run android
 ```
 

@@ -15,7 +15,7 @@ This app uses **expo-dev-client** and custom native modules (`react-native-insta
 
 1. **Ensure native code is built:**
    ```bash
-   cd app-randomizer
+   npm install
    npm run prebuild
    ```
 
