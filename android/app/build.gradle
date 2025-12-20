@@ -106,7 +106,8 @@ android {
             keyAlias 'androiddebugkey'
             keyPassword 'android'
         }
-        release {
+        // Use explicit create() to avoid Groovy DSL quirks in some build environments (e.g. F-Droid buildserver).
+        create("release") {
             // Configure via env vars or gradle properties. Do not commit keystores or passwords.
             def storePath = (System.getenv("NUDGE_RELEASE_STORE_FILE") ?: findProperty("NUDGE_RELEASE_STORE_FILE"))?.toString()
             if (storePath) {
@@ -124,7 +125,8 @@ android {
         release {
             // Caution! In production, you need to generate your own keystore file.
             // see https://reactnative.dev/docs/signed-apk-android.
-            signingConfig signingConfigs.release.storeFile != null ? signingConfigs.release : signingConfigs.debug
+            def releaseConfig = signingConfigs.findByName("release")
+            signingConfig (releaseConfig != null && releaseConfig.storeFile != null) ? releaseConfig : signingConfigs.debug
             def enableShrinkResources = findProperty('android.enableShrinkResourcesInReleaseBuilds') ?: 'false'
             shrinkResources enableShrinkResources.toBoolean()
             minifyEnabled enableMinifyInReleaseBuilds
