@@ -22,12 +22,39 @@ plugins {
   id("expo-autolinking-settings")
 }
 
+// Expo autolinking needs the *project root* (where `package.json` lives), not the `/android` dir.
+// If left as `settings.rootDir` (i.e. `/android`), some packages (e.g. AsyncStorage / SafeAreaContext)
+// may be detected as iOS-only, producing Gradle projects with "No variants exist" at build time.
+expoAutolinking.projectRoot = new File(rootDir, "..")
+
 extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
   if (System.getenv('EXPO_USE_COMMUNITY_AUTOLINKING') == '1') {
     ex.autolinkLibrariesFromCommand()
-  } else {
-    ex.autolinkLibrariesFromCommand(expoAutolinking.rnConfigCommand)
+    return
   }
+
+  // Use expo-modules-autolinking's `react-native-config` to generate the config consumed by RN's settings plugin.
+  //
+  // IMPORTANT: `expo-modules-autolinking react-native-config` defaults to `--platform ios`.
+  // If Android is not explicitly set, some dependencies will be detected as iOS-only, and Gradle will
+  // create placeholder projects with "No variants exist" (seen on F-Droid buildserver).
+  def rnConfigCommand = [
+    "node",
+    "--no-warnings",
+    "--eval",
+    "require(require.resolve('expo-modules-autolinking', { paths: [require.resolve('expo/package.json')] }))(process.argv.slice(1))",
+    "--",
+    "react-native-config",
+    "--platform",
+    "android",
+    "--json",
+    "--project-root",
+    expoAutolinking.projectRoot.absolutePath,
+    "--source-dir",
+    rootDir.absolutePath
+  ]
+
+  ex.autolinkLibrariesFromCommand(rnConfigCommand)
 }
 expoAutolinking.useExpoModules()
 
