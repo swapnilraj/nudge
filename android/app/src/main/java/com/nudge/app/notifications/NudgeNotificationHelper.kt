@@ -8,7 +8,7 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.nudge.app.MainActivity
+import com.nudge.app.SettingsActivity
 import com.nudge.app.R
 
 object NudgeNotificationHelper {
@@ -22,8 +22,7 @@ object NudgeNotificationHelper {
     // Clear any prior notifications from previous builds (including Expo fallback ones).
     NotificationManagerCompat.from(context).cancelAll()
 
-    val intent = Intent(context, MainActivity::class.java).apply {
-      putExtra("openSettings", true)
+    val intent = Intent(context, SettingsActivity::class.java).apply {
       addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }

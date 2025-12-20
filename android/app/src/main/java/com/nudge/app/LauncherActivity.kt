@@ -41,8 +41,7 @@ class LauncherActivity : Activity() {
   }
 
   private fun openSettings() {
-    val i = Intent(this, MainActivity::class.java).apply {
-      putExtra("openSettings", true)
+    val i = Intent(this, SettingsActivity::class.java).apply {
       addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
       addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
     }

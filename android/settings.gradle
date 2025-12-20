@@ -1,80 +1,17 @@
-pluginManagement {
-  def reactNativeGradlePlugin = new File(
-    providers.exec {
-      workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('@react-native/gradle-plugin/package.json', { paths: [require.resolve('react-native/package.json')] })")
-    }.standardOutput.asText.get().trim()
-  ).getParentFile().absolutePath
-  includeBuild(reactNativeGradlePlugin)
-  
-  def expoPluginsPath = new File(
-    providers.exec {
-      workingDir(rootDir)
-      commandLine("node", "--print", "require.resolve('expo-modules-autolinking/package.json', { paths: [require.resolve('expo/package.json')] })")
-    }.standardOutput.asText.get().trim(),
-    "../android/expo-gradle-plugin"
-  ).absolutePath
-  includeBuild(expoPluginsPath)
-}
-
-plugins {
-  id("com.facebook.react.settings")
-  id("expo-autolinking-settings")
-}
-
-// Expo autolinking needs the *project root* (where `package.json` lives), not the `/android` dir.
-// If left as `settings.rootDir` (i.e. `/android`), some packages (e.g. AsyncStorage / SafeAreaContext)
-// may be detected as iOS-only, producing Gradle projects with "No variants exist" at build time.
-expoAutolinking.projectRoot = new File(rootDir, "..")
-
-extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
-  // Use expo-modules-autolinking's `react-native-config` to generate the config consumed by RN's settings plugin.
-  //
-  // IMPORTANT: `expo-modules-autolinking react-native-config` defaults to `--platform ios`.
-  // If Android is not explicitly set, some dependencies will be detected as iOS-only, and Gradle will
-  // create placeholder projects with "No variants exist" (seen on F-Droid buildserver).
-  def rnConfigCommand = [
-    "node",
-    "--no-warnings",
-    "--eval",
-    "require(require.resolve('expo-modules-autolinking', { paths: [require.resolve('expo/package.json')] }))(process.argv.slice(1))",
-    "--",
-    "react-native-config",
-    "--platform",
-    "android",
-    "--json",
-    "--project-root",
-    expoAutolinking.projectRoot.absolutePath,
-    "--source-dir",
-    rootDir.absolutePath
-  ]
-
-  ex.autolinkLibrariesFromCommand(rnConfigCommand)
-}
-
-// F-Droid buildserver has repeatedly hit "No variants exist" for these projects, which indicates
-// they were included but pointed at the package root (no Gradle Android plugin) instead of the
-// package's `/android` library project.
-//
-// IMPORTANT: `projectDir` is writable only on the Settings ProjectDescriptor, not on Project.
-// Use settingsEvaluated so the projects are already included by autolinking, but before Gradle starts
-// configuring them.
-gradle.settingsEvaluated { settings ->
-  def asyncStorage = settings.findProject(":react-native-async-storage_async-storage")
-  if (asyncStorage != null) {
-    asyncStorage.projectDir = new File(settings.rootDir, "../node_modules/@react-native-async-storage/async-storage/android")
-  }
-
-  def safeArea = settings.findProject(":react-native-safe-area-context")
-  if (safeArea != null) {
-    safeArea.projectDir = new File(settings.rootDir, "../node_modules/react-native-safe-area-context/android")
-  }
-}
-expoAutolinking.useExpoModules()
-
 rootProject.name = 'Nudge'
-
-expoAutolinking.useExpoVersionCatalog()
-
 include ':app'
-includeBuild(expoAutolinking.reactNativeGradlePlugin)
+
+pluginManagement {
+  repositories {
+    google()
+    mavenCentral()
+    gradlePluginPortal()
+  }
+}
+
+dependencyResolutionManagement {
+  repositories {
+    google()
+    mavenCentral()
+  }
+}
