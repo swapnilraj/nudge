@@ -2,7 +2,7 @@
 
 ## Important: Development Build Required
 
-This app uses **expo-dev-client** and custom native modules (`react-native-installed-apps`), which means you **CANNOT use Expo Go**. You must build a custom development client.
+This app uses custom native modules, which means you **CANNOT use Expo Go**. Use native builds (Android Studio/Gradle or `expo run:android`).
 
 ## Option 1: Run on Android Device/Emulator (Recommended)
 

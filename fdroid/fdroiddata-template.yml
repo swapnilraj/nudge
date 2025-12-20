@@ -1,0 +1,32 @@
+Categories:
+  - System
+License: MIT
+AuthorName: Swapnil
+WebSite: https://gentlenudge.dev
+SourceCode: https://github.com/swapnilraj/nudge
+IssueTracker: https://github.com/swapnilraj/nudge/issues
+
+RepoType: git
+Repo: https://github.com/swapnilraj/nudge
+
+# Update these for each submission:
+AutoName: Gentle Nudge
+
+Builds:
+  - versionName: 1.0.2
+    versionCode: 3
+    commit: v1.0.2
+    subdir: .
+    gradle:
+      - yes
+    output: android/app/build/outputs/apk/release/app-release.apk
+    # F-Droid will sign the APK; our Gradle config falls back to debug signing if no keystore is provided.
+    # If reviewers request unsigned builds, we can add a dedicated fdroid buildType that does not sign.
+
+Summary: Replace a habit with a better one.
+Description: |-
+  Gentle Nudge helps you change app-opening habits by making a familiar icon open the apps you actually want to use, with probabilities you control.
+
+  Pick the apps you want to open, assign each a weight, and adjust the weights over time as the habit shifts.
+
+

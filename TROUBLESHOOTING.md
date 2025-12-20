@@ -7,7 +7,7 @@ You're trying to use Expo Go (scanning QR code), but getting an error.
 
 ### Solution
 **This app CANNOT run in Expo Go** because it uses:
-- `expo-dev-client` (requires custom development build)
+- Custom native modules (requires native build)
 - `react-native-installed-apps` (custom native module)
 
 ### How to Fix

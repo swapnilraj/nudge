@@ -102,14 +102,14 @@ App minimizes, notification persists
 
 #### Core Expo Packages
 - **expo** - Expo SDK
-- **expo-dev-client** - Required for custom native modules
+- **Native build** - Required for custom native modules
 - **react-native** - React Native core
 
 #### Storage
 - **@react-native-async-storage/async-storage** - Local persistent storage for user preferences
 
 #### Notifications
-- **expo-notifications** - Create and manage the persistent notification with action buttons
+- **Native notifications** - Persistent notification is implemented via native Android (`NudgeNotificationHelper`)
 
 #### App Interaction
 - **expo-intent-launcher** - Launch other apps using Android intents
@@ -249,24 +249,14 @@ function selectWeightedRandom(apps: WeightedApp[]): WeightedApp {
     "android": {
       "package": "com.nudge.app",
       "permissions": [
-        "android.permission.QUERY_ALL_PACKAGES",
         "android.permission.POST_NOTIFICATIONS"
       ],
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#00000000"
       }
     },
-    "plugins": [
-      "expo-dev-client",
-      [
-        "expo-notifications",
-        {
-          "icon": "./assets/notification-icon.png",
-          "color": "#ffffff"
-        }
-      ]
-    ]
+    "plugins": []
   }
 }
 ```
@@ -311,7 +301,7 @@ function selectWeightedRandom(apps: WeightedApp[]): WeightedApp {
 ### Setup
 ```bash
 cd app-randomizer
-npx expo install expo-dev-client @react-native-async-storage/async-storage expo-notifications expo-intent-launcher
+npx expo install @react-native-async-storage/async-storage expo-intent-launcher
 npm install react-native-installed-apps
 npx expo prebuild  # Generate native code
 ```
