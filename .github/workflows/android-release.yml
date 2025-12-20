@@ -1,6 +1,6 @@
 name: Android Release (APK + AAB)
 
-"on":
+on:
   push:
     tags:
       - "v*"
