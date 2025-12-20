@@ -60,6 +60,15 @@ cd android
 
 Signing/versioning details: see `android/RELEASE_SIGNING.md`.
 
+## Website (gentlenudge.dev)
+
+There’s a simple Vercel-ready website in `site/` with:
+
+- `/` landing page
+- `/privacy` privacy policy (renders from `PRIVACY_POLICY.md`)
+
+See `site/README.md` for deployment steps.
+
 ## Repo layout
 
 - `App.tsx`: RN entry point (Settings/onboarding UI)
