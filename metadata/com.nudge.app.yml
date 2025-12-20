@@ -1,0 +1,45 @@
+Categories:
+  - System
+License: MIT
+AuthorName: Swapnil
+WebSite: https://gentlenudge.dev
+SourceCode: https://github.com/swapnilraj/nudge
+IssueTracker: https://github.com/swapnilraj/nudge/issues
+Changelog: https://github.com/swapnilraj/nudge/releases
+
+AutoName: Gentle Nudge
+
+RepoType: git
+Repo: https://github.com/swapnilraj/nudge.git
+
+Builds:
+  - versionName: 1.0.2
+    versionCode: 3
+    commit: v1.0.2
+    subdir: android
+    sudo:
+      - apt-get update
+      - apt-get install -y nodejs npm
+      - sysctl fs.inotify.max_user_watches=524288 || true
+    init:
+      - cd ..
+      - npm ci --build-from-source
+      - cd android
+    gradle:
+      - assembleRelease
+    output: app/build/outputs/apk/release/app-release.apk
+    scandelete:
+      - node_modules
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: 1.0.2
+CurrentVersionCode: 3
+
+Summary: Replace a habit with a better one.
+Description: |-
+  Gentle Nudge helps you change app-opening habits by making a familiar icon open the apps you actually want to use, with probabilities you control.
+
+  Pick the apps you want to open, assign each a weight, and adjust the weights over time as the habit shifts.
+
+
