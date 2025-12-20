@@ -28,11 +28,6 @@ plugins {
 expoAutolinking.projectRoot = new File(rootDir, "..")
 
 extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
-  if (System.getenv('EXPO_USE_COMMUNITY_AUTOLINKING') == '1') {
-    ex.autolinkLibrariesFromCommand()
-    return
-  }
-
   // Use expo-modules-autolinking's `react-native-config` to generate the config consumed by RN's settings plugin.
   //
   // IMPORTANT: `expo-modules-autolinking react-native-config` defaults to `--platform ios`.
