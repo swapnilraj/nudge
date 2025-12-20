@@ -25,5 +25,18 @@
     "@types/react": "~19.1.0",
     "typescript": "~5.9.2"
   },
+  "expo": {
+    "autolinking": {
+      "android": {
+        "buildFromSource": [
+          "expo-asset",
+          "expo-file-system",
+          "expo-font",
+          "expo-intent-launcher",
+          "expo-keep-awake"
+        ]
+      }
+    }
+  },
   "private": true
 }
