@@ -1,116 +1,61 @@
 package com.nudge.app
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.core.content.ContextCompat
-import com.nudge.app.notifications.NudgeNotificationHelper
-import com.nudge.app.ui.MainViewModel
-import com.nudge.app.ui.Screen
-import com.nudge.app.ui.screens.*
-import com.nudge.app.ui.theme.NudgeTheme
 
-class MainActivity : ComponentActivity() {
-    
-    private val viewModel: MainViewModel by viewModels()
-    
-    private val requestPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            // Show notification after permission is granted
-            NudgeNotificationHelper.showPersistentNotification(this)
-        }
-    }
-    
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        
-        // Check if we should open settings
-        (application as MainApplication).checkIntent(intent)
-        
-        // Request notification permission on Android 13+
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            when {
-                ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.POST_NOTIFICATIONS
-                ) == PackageManager.PERMISSION_GRANTED -> {
-                    // Permission already granted, show notification
-                    NudgeNotificationHelper.showPersistentNotification(this)
-                }
-                else -> {
-                    // Request permission
-                    requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        } else {
-            // Android 12 and below - no permission needed
-            NudgeNotificationHelper.showPersistentNotification(this)
-        }
-        
-        setContent {
-            NudgeTheme {
-                val uiState = viewModel.uiState
-                
-                when (uiState.value.currentScreen) {
-                    is Screen.Launching -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
-                        }
-                    }
-                    
-                    is Screen.Welcome -> {
-                        WelcomeScreen(
-                            onContinue = { viewModel.onWelcomeContinue() }
-                        )
-                    }
-                    
-                    is Screen.AppSelection -> {
-                        AppSelectionScreen(
-                            allApps = uiState.value.allApps,
-                            selectedApps = uiState.value.selectedApps,
-                            onAppsSelected = { viewModel.onAppsSelected(it) },
-                            onNext = { viewModel.onAppSelectionNext() }
-                        )
-                    }
-                    
-                    is Screen.WeightConfig -> {
-                        WeightConfigScreen(
-                            apps = uiState.value.weightedApps,
-                            onWeightsChanged = { viewModel.onWeightsChanged(it) },
-                            onSave = { viewModel.onWeightConfigSave() }
-                        )
-                    }
-                    
-                    is Screen.Settings -> {
-                        SettingsScreen(
-                            allApps = uiState.value.allApps,
-                            currentApps = uiState.value.preferences?.selectedApps ?: emptyList(),
-                            onSave = { viewModel.onSettingsSave(it) }
-                        )
-                    }
-                }
-            }
-        }
-    }
-    
-    override fun onNewIntent(intent: android.content.Intent?) {
-        super.onNewIntent(intent)
-        (application as MainApplication).checkIntent(intent)
-        viewModel.openSettings()
-    }
+import com.facebook.react.ReactActivity
+import com.facebook.react.ReactActivityDelegate
+import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint.fabricEnabled
+import com.facebook.react.defaults.DefaultReactActivityDelegate
+
+import expo.modules.ReactActivityDelegateWrapper
+
+class MainActivity : ReactActivity() {
+  override fun onCreate(savedInstanceState: Bundle?) {
+    // Set the theme to AppTheme BEFORE onCreate to support
+    // coloring the background, status bar, and navigation bar.
+    // This is required for expo-splash-screen.
+    setTheme(R.style.AppTheme);
+    super.onCreate(null)
+  }
+
+  /**
+   * Returns the name of the main component registered from JavaScript. This is used to schedule
+   * rendering of the component.
+   */
+  override fun getMainComponentName(): String = "main"
+
+  /**
+   * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
+   * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]
+   */
+  override fun createReactActivityDelegate(): ReactActivityDelegate {
+    return ReactActivityDelegateWrapper(
+          this,
+          BuildConfig.IS_NEW_ARCHITECTURE_ENABLED,
+          object : DefaultReactActivityDelegate(
+              this,
+              mainComponentName,
+              fabricEnabled
+          ){})
+  }
+
+  /**
+    * Align the back button behavior with Android S
+    * where moving root activities to background instead of finishing activities.
+    * @see <a href="https://developer.android.com/reference/android/app/Activity#onBackPressed()">onBackPressed</a>
+    */
+  override fun invokeDefaultOnBackPressed() {
+      if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.R) {
+          if (!moveTaskToBack(false)) {
+              // For non-root activities, use the default implementation to finish them.
+              super.invokeDefaultOnBackPressed()
+          }
+          return
+      }
+
+      // Use the default back button implementation on Android S
+      // because it's doing more than [Activity.moveTaskToBack] in fact.
+      super.invokeDefaultOnBackPressed()
+  }
 }

@@ -4,23 +4,22 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import com.nudge.app.notifications.NudgeNotificationHelper
-import com.nudge.app.services.StorageService
-import com.nudge.app.services.WeightedRandomizer
-import com.nudge.app.services.AppLauncher
 import org.json.JSONArray
-import kotlin.random.Random
+import kotlin.math.max
 
 class LauncherActivity : Activity() {
+
+  private val prefsName = "nudge_prefs"
+  private val appsKey = "weighted_apps_json"
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
 
-    // Note: Notification is shown from MainActivity after permission check
-    // LauncherActivity runs before MainActivity, so we don't show it here
+    // Ensure the persistent settings notification exists even when we don't start React Native.
+    NudgeNotificationHelper.showPersistentNotification(this)
 
     // No UI: immediately attempt to launch a weighted-random app.
-    val storageService = StorageService(this)
-    val json = storageService.getWeightedAppsJson()
+    val json = getSharedPreferences(prefsName, MODE_PRIVATE).getString(appsKey, null)
     val selectedPackage = trySelectWeightedPackage(json)
 
     if (selectedPackage == null) {
@@ -28,14 +27,16 @@ class LauncherActivity : Activity() {
       return
     }
 
-    val appLauncher = AppLauncher(this)
-    val success = appLauncher.launchApp(selectedPackage)
+    val launchIntent = packageManager.getLaunchIntentForPackage(selectedPackage)?.apply {
+      addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
 
-    if (!success) {
+    if (launchIntent == null) {
       openSettings()
       return
     }
 
+    startActivity(launchIntent)
     finish()
   }
 
@@ -58,7 +59,7 @@ class LauncherActivity : Activity() {
         val obj = arr.optJSONObject(i) ?: continue
         val pkg = obj.optString("packageName", "").trim()
         if (pkg.isEmpty()) continue
-        val weight = obj.optInt("weight", 0).coerceAtLeast(0)
+        val weight = max(0, obj.optInt("weight", 0))
         if (weight <= 0) continue
         out.add(pkg to weight)
       }
@@ -72,7 +73,7 @@ class LauncherActivity : Activity() {
     val total = apps.sumOf { it.second }
     if (total <= 0) return null
 
-    var r = Random.nextDouble(0.0, total.toDouble())
+    var r = (Math.random() * total).toInt() + 1 // 1..total
     for ((pkg, w) in apps) {
       r -= w
       if (r <= 0) return pkg
