@@ -15,11 +15,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
       - uses: actions/setup-java@v4
         with:
           distribution: "temurin"
@@ -27,9 +22,6 @@ jobs:
           cache: "gradle"
 
       - uses: android-actions/setup-android@v3
-
-      - name: Install JS deps
-        run: npm ci
 
       - name: Configure Android SDK path
         run: |
