@@ -54,20 +54,16 @@ extensions.configure(com.facebook.react.ReactSettingsExtension) { ex ->
 
 // F-Droid buildserver has repeatedly hit "No variants exist" for these projects, which indicates
 // they were included but pointed at the package root (no Gradle Android plugin) instead of the
-// package's `/android` library project. Force the correct projectDir so Gradle sees variants.
-def forceAndroidLibraryProjectDir = { String projectPath, String androidProjectDirRelativeToAndroidDir ->
-  def p = findProject(projectPath)
-  if (p == null) {
-    include(projectPath)
-    p = findProject(projectPath)
+// package's `/android` library project. Some autolinking flows may (re)assign these directories
+// after `autolinkLibrariesFromCommand()`, so enforce them just-in-time before project evaluation.
+gradle.beforeProject { p ->
+  if (p.path == ":react-native-async-storage_async-storage") {
+    p.projectDir = new File(rootDir, "../node_modules/@react-native-async-storage/async-storage/android")
   }
-  if (p != null) {
-    p.projectDir = new File(rootDir, androidProjectDirRelativeToAndroidDir)
+  if (p.path == ":react-native-safe-area-context") {
+    p.projectDir = new File(rootDir, "../node_modules/react-native-safe-area-context/android")
   }
 }
-
-forceAndroidLibraryProjectDir(":react-native-async-storage_async-storage", "../node_modules/@react-native-async-storage/async-storage/android")
-forceAndroidLibraryProjectDir(":react-native-safe-area-context", "../node_modules/react-native-safe-area-context/android")
 expoAutolinking.useExpoModules()
 
 rootProject.name = 'Nudge'
