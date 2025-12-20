@@ -5,6 +5,10 @@ export const metadata = {
   description:
     'A gentle way to change your phone habits. Tap a familiar icon and open the apps you actually want to use, with probabilities you can increase over time.',
   metadataBase: new URL('https://gentlenudge.dev'),
+  icons: {
+    icon: '/favicon.png',
+    apple: '/apple-touch-icon.png',
+  },
   openGraph: {
     title: 'Gentle Nudge',
     description:
