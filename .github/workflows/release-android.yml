@@ -31,11 +31,17 @@ jobs:
         run: |
           echo "${{ secrets.NUDGE_RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > android/nudge-release.jks
 
+      - name: Compute version
+        shell: bash
+        run: |
+          # Tags are like v1.0.16; Play/Gradle versionName should be 1.0.16
+          REF_NAME="${GITHUB_REF_NAME:-0.0.0}"
+          VERSION_NAME="${REF_NAME#v}"
+          echo "NUDGE_VERSION_NAME=$VERSION_NAME" >> "$GITHUB_ENV"
+          echo "NUDGE_VERSION_CODE=${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
+
       - name: Build APK + AAB
         env:
-          # Versioning
-          NUDGE_VERSION_CODE: ${{ github.run_number }}
-          NUDGE_VERSION_NAME: ${{ github.ref_name }}
           # Signing
           NUDGE_RELEASE_STORE_FILE: ${{ github.workspace }}/android/nudge-release.jks
           NUDGE_RELEASE_STORE_PASSWORD: ${{ secrets.NUDGE_RELEASE_STORE_PASSWORD }}
