@@ -89,11 +89,16 @@ export default function HomePage() {
       </section>
 
       <footer className="footer">
-        <span>© {new Date().getFullYear()} Gentle Nudge</span>
+        <span>© <span id="copyright-year"></span> Gentle Nudge</span>
         <span>
           <a href="/privacy">Privacy Policy</a>
         </span>
       </footer>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `document.getElementById('copyright-year').textContent = new Date().getFullYear();`,
+        }}
+      />
     </main>
   );
 }
